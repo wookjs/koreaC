@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="product">
+	
+	<!-- 상품 전체 조회 -->
+	<select id="product_list" resultType="product" parameterType="java.util.HashMap">
+		select * from
+		(select rank() over(order by p_num desc) no, p.* from tb_product p)
+		where no between #{start} and #{end}
+	</select>
+	
+	<!-- 전체 게시물 수 조회 -->
+	<select id="product_count" resultType="int">
+		select count(*) from tb_product
+	</select>
+	
+	<!-- 카테고리별 검색 -->
+	<select id="category" parameterType="int" resultType="product">
+		select * from TB_product
+		where p_id = #{p_id}
+	</select>
+	
+	<!-- 상품등록 -->
+	<insert id="p_insert" parameterType="product">
+		insert into tb_product values(
+			seq_product_num.nextval,
+			#{p_name},
+			#{p_price},
+			#{p_explain},
+			#{p_size},
+			#{p_color},
+			#{p_pabric},
+			#{p_id},
+			#{p_picture},
+			#{p_stock}
+		)
+	</insert>
+	
+	<!-- 상품 하나 조회 -->
+	<select id="p_selectOne" parameterType="int" resultType="product">
+		select * from TB_product where p_num = #{p_num}
+	</select>
+	
+	<!-- 상품 검색 -->
+	<select id="p_search" resultType="product">
+		select * from TB_product where p_name like '%'||#{p_name}||'%'
+	</select>
+	
+	<!-- 상품 수정 -->
+	<update id="p_update" parameterType="product">
+		update tb_product set
+		p_name = #{p_name},
+		p_price = #{p_price},
+		p_explain = #{p_explain},
+		p_size = #{p_size},
+		p_color = #{p_color},
+		p_pabric = #{p_pabric},
+		p_id = #{p_id},
+		p_picture = #{p_picture},
+		p_stock = #{p_stock}
+		where p_num = #{p_num}
+	</update>
+	
+	<!-- 상품 삭제 -->
+	<delete id="p_delete" parameterType="int">
+		delete from TB_product where p_num = #{p_num}
+	</delete>
+	
+</mapper>

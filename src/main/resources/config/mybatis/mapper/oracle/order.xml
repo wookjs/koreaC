@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="order">
+
+	<update id="user_update" >
+	UPDATE TB_USER SET
+	U_ID = #{u_id},
+	U_PWD = #{u_pwd},
+	U_USERNAME = #{u_username},
+	U_EMAIL = #{u_email},
+	U_TEL = #{u_tel},
+	U_IP = #{u_ip}
+	WHERE U_IDX = #{u_idx}
+	</update>
+		
+	<select id="basket_list"  resultType="basket">
+		select * from TB_BASKET B, TB_PRODUCT P
+		WHERE B.B_ID = #{b_id} 
+		and B.B_NUM = P.P_NUM
+	</select>
+	
+	<select id="basket_producnt"  resultType="basket">
+		select * from TB_BASKET B, TB_PRODUCT P
+		WHERE B.B_ID = #{b_id} 
+		and B.B_NUM = P.P_NUM
+		and b.B_NUM = #{b_num}
+	</select>
+	
+	<update id="basket_update">
+	
+		UPDATE ADMIN.TB_BASKET
+			 SET 
+			 B_QUANTITY= #{b_quantity}, 
+			 B_SHIPPING= #{b_shipping} 
+		WHERE 
+				B_IDX = #{b_idx} 
+			AND B_ID = #{b_id} 
+	</update>
+	
+	<insert id="basket_insert">
+	INSERT INTO TB_BASKET
+		(
+	 B_IDX, 
+	 B_ID, 
+	 B_NUM, 
+	 B_QUANTITY
+	 ) 
+	VALUES 
+		( 
+	 SEQ_BASKET_IDX.NEXTVAL, 
+	 #{b_id},
+	 #{b_num},
+	 #{b_quantity}
+	 )
+	
+	</insert>
+	
+	<delete id="basket_del" parameterType="int">
+		DELETE FROM TB_BASKET
+		WHERE B_IDX = #{b_idx}	
+	</delete>
+	
+	<select id="order_basket_list" resultType="basket"  parameterType="Integer">
+		select * from TB_BASKET B, TB_PRODUCT P
+		WHERE B.B_IDX IN
+		<foreach collection="list" index="index" item="type" open="(" close=")" separator=",">
+		#{type}
+		</foreach>
+		and B.B_NUM = P.P_NUM
+	</select>
+	
+	<select id="selectSEQ" resultType="int">
+		select SEQ_ORDER_NUM.nextval FROM DUAL
+	</select>
+	
+	<select id="productall" resultType="product" parameterType="Integer">
+			select * from TB_PRODUCT
+			WHERE P_NUM IN
+			<foreach collection="list" index="index" item="dto" open="(" close=")" separator=",">
+				#{dto}
+			</foreach>
+	</select>
+	
+	<insert id="orderhistory_insert">
+	insert into TB_ORDERHISTORY values(#{o_ordernum}, #{o_num}, #{o_id}, #{o_picture}, default, #{o_addres}, #{o_message}, #{o_name}, #{o_quantity}, #{o_price}, #{o_size}, #{o_pabrice}, #{o_color}, sysdate, #{o_email}, #{o_tel}, #{o_proname})
+	</insert>
+	
+	<delete id="order_basket_deleteList">
+		DELETE FROM TB_BASKET 
+		WHERE B_IDX IN
+		<foreach collection="list" index="index" item="b_idxlist" open="(" close=")" separator=",">
+				#{b_idxlist}
+			</foreach>
+		
+	</delete>
+	
+	<select id="moreCount" resultType="int">
+select count(*) 
+from(
+      select rownum, o_ordernum 
+      from(
+           select o_ordernum 
+           from tb_orderhistory
+           where o_id = #{u_id}
+           group by o_ordernum
+           )
+     )
+	</select>
+	
+	<select id="orderList" resultType="order">
+select * 
+from(
+      select rownum row_num, o_ordernum 
+      from(
+           select o_ordernum 
+           from tb_orderhistory
+           group by o_ordernum
+           )
+     )a,
+tb_orderhistory b 
+    where a.o_ordernum = b.O_ORDERNUM
+    and o_id = #{u_id}
+    and a.row_num between #{startnum} and #{endnum}
+    order by a.o_ordernum desc	
+	</select>
+	
+	
+	<select id="moreSearchcount" resultType="int">
+	select count(*) 
+from(
+      select rownum row_num, o_ordernum 
+      from(
+           select o_ordernum 
+           from tb_orderhistory
+           where o_id = #{userid}
+           <choose>
+		<when test="startdate != 11111111  and enddate != 11111111 and orderstatus != null">
+		AND O_ORDER_DATE BETWEEN TO_DATE(#{startdate},'YYYYMMDD') AND TO_DATE(#{enddate},'YYYYMMDD')
+			AND O_STATE = #{orderstatus}
+			group by o_ordernum
+			 )
+     )a
+		</when>
+		<when test="startdate != 11111111  and enddate != 11111111 and orderstatus == null">
+		AND O_ORDER_DATE BETWEEN TO_DATE(#{startdate},'YYYYMMDD') AND TO_DATE(#{enddate},'YYYYMMDD')
+			group by o_ordernum
+			
+			 )
+     )a
+		</when>
+		<when test="startdate != 11111111  and enddate == 11111111 and orderstatus == null">
+		AND O_ORDER_DATE >= TO_DATE(#{startdate},'YYYYMMDD')
+			group by o_ordernum
+			
+			 )
+     )a
+		</when>
+		<when test="startdate == 11111111  and enddate != 11111111 and orderstatus == null">
+		AND  TO_DATE(#{enddate},'YYYYMMDD')	>= O_ORDER_DATE
+			group by o_ordernum
+			
+			 )
+     )a
+		</when>
+		<when test="startdate == 11111111  and enddate == 11111111 and orderstatus != null">
+		AND O_STATE = #{orderstatus}
+			group by o_ordernum
+			
+			 )
+     )a
+		</when>
+		<when test="startdate == 11111111  and enddate == 11111111 and orderstatus == null">
+		group by o_ordernum
+		 )
+     )a
+		</when>
+	</choose>	
+
+         
+	</select>
+	
+	
+	
+	
+	<select id="orderSearch" resultType="order">
+		select * 
+from(
+      select rownum row_num, o_ordernum 
+      from(
+           select o_ordernum 
+           from tb_orderhistory
+           group by o_ordernum
+           )
+     )a,
+tb_orderhistory b 
+    where a.o_ordernum = b.O_ORDERNUM
+    and o_id = #{userid}
+    and a.row_num between #{startnum} and #{endnum}
+	<choose>
+		<when test="startdate != 11111111  and enddate != 11111111 and orderstatus != null">
+		AND O_ORDER_DATE BETWEEN TO_DATE(#{startdate},'YYYYMMDD') AND TO_DATE(#{enddate},'YYYYMMDD')
+			AND O_STATE = #{orderstatus}
+			order by a.o_ordernum desc
+		</when>
+		<when test="startdate != 11111111  and enddate != 11111111 and orderstatus == null">
+		AND O_ORDER_DATE BETWEEN TO_DATE(#{startdate},'YYYYMMDD') AND TO_DATE(#{enddate},'YYYYMMDD')
+			order by a.o_ordernum desc
+		</when>
+		<when test="startdate != 11111111  and enddate == 11111111 and orderstatus == null">
+		AND O_ORDER_DATE >= TO_DATE(#{startdate},'YYYYMMDD')
+			order by a.o_ordernum desc
+		</when>
+		<when test="startdate == 11111111  and enddate != 11111111 and orderstatus == null">
+		AND  TO_DATE(#{enddate},'YYYYMMDD')	>= O_ORDER_DATE
+			order by a.o_ordernum desc
+		</when>
+		<when test="startdate == 11111111  and enddate == 11111111 and orderstatus != null">
+		AND O_STATE = #{orderstatus}
+			order by a.o_ordernum desc
+		</when>
+		<when test="startdate == 11111111  and enddate == 11111111 and orderstatus == null">
+		order by a.o_ordernum desc
+		</when>
+	</choose>	
+		
+		
+	</select>
+	
+
+	
+	<update id="updateTotal">
+	UPDATE TB_USER SET
+	U_TOTAL = U_TOTAL + #{u_total},
+	U_RESERVE = U_RESERVE + #{u_reserve}
+	WHERE U_ID = #{u_id}
+	</update>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

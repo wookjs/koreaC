@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user">
+
+	<select id="user_list" resultType="user">
+		select * from
+		(select rank() over(order by u_idx desc) no, u.* from tb_user u)
+		where no between #{start} and #{end}
+	</select>
+	
+	<select id="loginCheck" parameterType="String" resultType="user">
+			select * from TB_user where u_id=#{u_id}
+	</select>
+		
+	<insert id="insert" parameterType="user">
+		insert into TB_user values(
+			seq_user_idx.nextVal,
+			#{u_id},
+			#{u_pwd},
+			#{u_username},
+			#{u_email},
+			#{u_tel},
+			#{u_ip}	,
+			default,
+			default
+		)
+	</insert>
+	
+	<select id="userNameCheck" parameterType="String" resultType="user">
+		select * from TB_user where u_username=#{u_username}
+	</select>
+	
+	<select id="userIdCheck" parameterType="String" resultType="user">
+		select * from TB_user where u_id=#{u_id}
+	</select>
+	
+	<select id="userPwdCheck" parameterType="String" resultType="String">
+		select u_pwd from TB_user where u_id=#{u_id}
+	</select>
+	
+	<select id="EmailCheck" parameterType="String" resultType="user">
+		select * from TB_user where u_email=#{u_email}
+	</select>
+	
+	<!-- 회원 조회 -->
+	<select id="u_search" resultType="user">
+		select * from tb_user where u_username like '%'||#{u_username}||'%'
+	</select>
+	
+	<!-- 회원 삭제 -->
+	<delete id="user_delete" parameterType="int">
+		delete from tb_user where u_idx = #{u_idx}
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

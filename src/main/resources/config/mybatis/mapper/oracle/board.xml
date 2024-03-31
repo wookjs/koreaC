@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+
+<resultMap type="Map" id="clobResult">   
+	<result property="B_CONTENTS" column="B_CONTENTS" jdbcType="CLOB" javaType="java.lang.String"/>
+</resultMap>
+
+	<select id="selectCnt" resultType="int">
+		SELECT COUNT(1) 
+		FROM (
+			SELECT ROWNUM RN, A.* 
+				FROM (
+						SELECT * FROM TB_BOARD_BASE  A1 
+				  	             ,(SELECT COUNT(1) CNT, B_SEQ AS SEQ FROM TB_BOARD_DTLS GROUP BY B_SEQ )  B1 
+				  	    WHERE A1.B_SEQ  = B1.SEQ
+				  	    AND  A1.B_CATEGORY = #{category}
+				  	    
+<!-- 				  	    공지만 볼때 -->
+				  	    <if test='showNotice.equalsIgnoreCase("Y")'> 
+					  	    AND  A1.B_NOTICE_YN = UPPER(#{showNotice})
+				  	    </if>
+<!-- 				  	    공지를 포함안시킬때  -->
+				  	    <if test='showNotice.equalsIgnoreCase("N")'>
+					  	    AND  A1.B_NOTICE_YN = UPPER(#{showNotice})
+				  	    </if>
+				  	    
+						ORDER BY  
+								  B_NOTICE_YN DESC , TO_NUMBER(A1.B_SEQ) DESC
+						) A
+				)
+		WHERE 1=1
+		<if test='searchKey !=null or !searchKey.equalsIgnoreCase("")'>
+		
+			<if test='searchType !=null and searchType.equalsIgnoreCase("NAME")'>
+				AND B_USER LIKE #{searchKey} ||'%' 
+			</if>
+			<if test='searchType !=null and searchType.equalsIgnoreCase("SUBJECT")'>
+				AND B_TITLE LIKE '%'||#{searchKey}||'%'
+			</if>
+		</if>
+		
+	</select>
+	
+	<select id="selectPage" resultType="hashMap">
+		SELECT * 
+		FROM (
+			SELECT ROWNUM RN, A.* 
+				FROM (
+						SELECT * FROM TB_BOARD_BASE  A1 
+				  	             ,(SELECT COUNT(1) CNT, B_SEQ AS SEQ FROM TB_BOARD_DTLS GROUP BY B_SEQ )  B1 
+				  	    WHERE A1.B_SEQ  = B1.SEQ
+  			  	       <!-- 공지랑 글이랑 같이 볼때 -->
+  			  	       <if test='showNotice.equalsIgnoreCase("A")'>
+  			  	       		AND  ( A1.B_CATEGORY = #{category} 	 OR  A1.B_CATEGORY = 'notice' ) 
+  			  	       </if>
+				  	   <!-- 공지만 볼때 -->
+				  	    <if test='showNotice.equalsIgnoreCase("Y")'> 
+					  	    AND  A1.B_CATEGORY = 'notice'  
+				  	    </if>
+<!-- 				  	    공지를 포함안시킬때  -->
+				  	    <if test='showNotice.equalsIgnoreCase("N")'>
+				  	    	AND  ( A1.B_CATEGORY = #{category} )
+					  	    AND  A1.B_NOTICE_YN = UPPER(#{showNotice})
+				  	    </if>
+				  	    
+						ORDER BY  
+								  B_NOTICE_YN DESC , TO_NUMBER(A1.B_SEQ) DESC
+						) A
+				)
+		WHERE 1=1
+		AND RN BETWEEN #{start} AND #{end}
+		<if test='searchKey !=null or !searchKey.equalsIgnoreCase("")'>
+		
+			<if test='searchType !=null and searchType.equalsIgnoreCase("NAME")'>
+				AND B_USER LIKE #{searchKey} ||'%' 
+			</if>
+			<if test='searchType !=null and searchType.equalsIgnoreCase("SUBJECT")'>
+				AND B_TITLE LIKE '%'||#{searchKey}||'%'
+			</if>
+		</if>
+		
+	</select>
+	
+	<select id="selectDetail" resultMap="clobResult">
+		SELECT  B1.*
+		      , A1.B_TITLE 
+		      , A1.B_CATEGORY 
+		      , A1.B_IMG_PATH
+		      , A1.B_NOTICE_YN 
+		  FROM TB_BOARD_BASE  A1 
+	         , TB_BOARD_DTLS  B1 
+	     WHERE A1.B_SEQ  = B1.B_SEQ
+	       AND  A1.B_SEQ = #{seq}
+	       <if test='reply !=null and !reply.equalsIgnoreCase("")'>
+	       	AND  B1.B_REPLY = #{reply}
+	       </if>
+	     ORDER BY B1.B_SEQ , B1.B_REPLY ASC
+	</select>
+	
+	
+
+	<select id="selectList" resultType="hashMap">
+	  	SELECT * FROM TB_BOARD_BASE  A 
+  	             ,(SELECT COUNT(1) CNT, B_SEQ FROM TB_BOARD_DTLS GROUP BY B_SEQ )  B 
+  	    WHERE A.B_SEQ  = B.B_SEQ
+		ORDER BY TO_NUMBER(A.B_SEQ) DESC
+	</select>
+		
+	<select id="selectOne">
+		SELECT * 
+		   FROM TB_BOARD_BASE A 
+			   ,TB_BOARD_DTLS B
+		  WHERE A.B_SEQ = B.B_SEQ 
+		    AND A.B_SEQ = #{seq}
+
+	</select>
+	
+	<select id="selectKey" resultType="String">
+		SELECT NVL(MAX(TO_NUMBER(B_SEQ)) , 0) +1 FROM TB_BOARD_BASE
+	</select>
+	
+	<select id="selectReply" resultType="String">
+		SELECT NVL(MAX(TO_NUMBER(B_REPLY)) , 0) +1 FROM TB_BOARD_DTLS
+		WHERE B_SEQ = #{seq} 
+	</select>
+
+	
+	<insert id="insertBase">
+		INSERT INTO TB_BOARD_BASE
+			(
+			  B_SEQ
+			, B_CATEGORY
+			, B_USER
+			, B_NOTICE_YN
+			, B_IMG_PATH
+			, B_TITLE
+			, B_CRTR
+			, B_REPLY
+			, B_DEEP
+			, B_REG_DATE
+			, B_REG_USER
+			, B_MOD_DATE
+			, B_MOD_USER) 
+			VALUES 
+				(
+		   	  #{seq} 
+			, #{category}
+			, #{user}
+			, #{noticeYn}
+			, #{imgPath}
+			, #{title}
+			, #{crtr}
+			, #{reply}
+			, #{deep}
+			, SYSDATE
+			, #{regUser}
+			, SYSDATE
+			, #{modUser} 
+			)
+	</insert>
+	
+	<insert id="insertDtls">
+		
+		INSERT INTO TB_BOARD_DTLS
+		(
+		  B_SEQ
+		, B_CRTR
+		, B_REPLY
+		, B_DEEP
+		, B_CONTENTS
+		, B_REG_DATE
+		, B_REG_USER
+		, B_MOD_DATE
+		, B_MOD_USER) 
+		VALUES 
+			( 
+		 	  #{seq} 
+			, #{crtr}
+			, #{reply}
+			, #{deep}
+			, #{contents}
+			, SYSDATE
+			, #{regUser}
+			, SYSDATE  
+			, #{modUser}
+		)
+	</insert>
+	
+	<update id="updateBase">
+	UPDATE TB_BOARD_BASE
+	SET   
+		  B_NOTICE_YN =  #{noticeYn}
+		, B_IMG_PATH= #{imgPath}
+		, B_TITLE= #{title}
+		, B_MOD_DATE= SYSDATE 
+		, B_MOD_USER= #{modUser} 
+	WHERE 
+			B_SEQ =  #{seq}
+<!-- 		AND B_CATEGORY = ?  -->
+<!-- 		AND B_USER = ?  -->
+<!-- 		AND B_NOTICE_YN = ?  -->
+<!-- 		AND B_IMG_PATH = ?  -->
+<!-- 		AND B_TITLE = ?  -->
+<!-- 		AND B_CRTR = ?  -->
+<!-- 		AND B_REPLY = ?  -->
+<!-- 		AND B_DEEP = ?  -->
+<!-- 		AND B_REG_DATE = ?  -->
+<!-- 		AND B_REG_USER = ?  -->
+<!-- 		AND B_MOD_DATE = ?  -->
+<!-- 		AND B_MOD_USER = ?  -->
+	
+	</update>
+	
+	<update id="updateDtls">
+		UPDATE TB_BOARD_DTLS
+		SET
+		  B_CONTENTS= #{contents}
+		, B_MOD_DATE= SYSDATE
+		, B_MOD_USER= #{modUser}  
+		WHERE 
+			B_SEQ = #{seq} 
+		AND B_REPLY = #{reply} 
+		</update>
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
