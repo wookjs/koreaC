@@ -9,41 +9,6 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-<style>
-	body {
-        font-family: 'Roboto', sans-serif;
-   	}
-   	
-	.carousel-container {
-	    display: flex;
-	    justify-content: center;
-	    align-items: center;
-	    overflow: hidden;
-	 }
-
-	.carousel-slide {
-	    display: flex;
-	}
-
-	.carousel-slide img {
-	    max-width: 100%; /* 이미지의 최대 너비를 부모 요소의 너비에 맞춤 */
-	    max-height: 100%; /* 이미지의 최대 높이를 부모 요소의 높이에 맞춤 */
-	    width: auto; /* 가로 크기를 유지하면서 세로 크기에 맞춤 */
-	    height: auto; /* 세로 크기를 유지하면서 가로 크기에 맞춤 */
-	}
-	
-	 /* 화살표 버튼 스타일 */
-    .arrow {
-        cursor: pointer;
-        opacity: 1; /* 화살표 버튼이 투명하지 않도록 설정 */
-        top: 50%; /* 상위 요소의 50% 위치에 배치 */
-        transform: translateY(-50%); /* 상위 요소의 50% 위로 이동하여 정확한 중앙 정렬 */
-        z-index: 1; /* 다른 요소 위에 배치 */
-        background-color: rgba(0, 0, 0, 0.5); /* 배경색 지정 */
-        color: white; /* 텍스트 색상 지정 */
-        padding: 10px; /* 내부 여백 지정 */
-    }
-</style>
 </head>
 <jsp:include page="/WEB-INF/views/main/header.jsp"></jsp:include>
 <body class="bg-gray-50"></body>
@@ -70,31 +35,6 @@
         </aside>
         <main class="flex overscroll-auto">
             <div class="py-6 px-4 sm:px-6 lg:px-8">
-		       	<div class="grid grid-cols-1">
-					<div class="carousel-container">
-					    <div class="arrow" onclick="moveSlide(-1)">&#10094;</div>
-							<div id="carousel" class="carousel-slide">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						      	<img src="https://m.ycloset.com/web/product/big/202302/86b7ec1346401cc8539aaa2839d445ca.jpg">
-			        			<img src="https://ycloset.com/web/product/medium/202302/57e3f543c138fbc8bc90cf5ebe5a4266.webp">
-						    </div>
-					    <div class="arrow" onclick="moveSlide(1)">&#10095;</div>
-				  	</div>
-				</div>
-            	<br>
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">New</h2>
                 <div class="grid gap-3 grid-cols-3 grid-rows-3">
                 <c:forEach var="dto" items="${list}">
@@ -119,25 +59,5 @@
     	${pageMenu}
     </div>
     <jsp:include page="/WEB-INF/views/main/footer.jsp"></jsp:include>
-<script>
-    var currentSlide = 0;
-    var totalSlides = document.querySelectorAll('#carousel img').length;
-    var carouselWidth = document.querySelector('.carousel-slide').offsetWidth;
-
-    function moveSlide(direction) {
-        currentSlide += direction;
-        
-        if (currentSlide >= totalSlides) {
-            currentSlide = 0; // 마지막 이미지에서 다음 버튼을 클릭한 경우, 첫 번째 이미지로 이동
-        } else if (currentSlide < 0) {
-            currentSlide = totalSlides - 1; // 첫 번째 이미지에서 이전 버튼을 클릭한 경우, 마지막 이미지로 이동
-        }
-        
-        var displacement = -currentSlide * carouselWidth;
-        
-        document.getElementById('carousel').style.transition = 'transform 0.5s ease';
-        document.getElementById('carousel').style.transform = 'translateX(' + displacement + 'px)';
-    }
-</script>
 </body>
 </html>

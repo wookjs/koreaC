@@ -8,13 +8,14 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script type="text/javascript">
 	window.onload = function() {
-
+		
 		document.getElementById("basketBtn").addEventListener( 'click' , function(e) {
 		    console.log(e)
 		    console.log("바스켓이동")
 		    location.href = "basket_insert?pronum="+document.getElementsByName("p_num")[0].value
 		    
 		});
+		
 		document.getElementById("orderBtn").addEventListener( 'click' , function(e) {
 		    console.log(e)
 		    console.log("오더이동")
@@ -64,10 +65,21 @@
 				${dto.p_pabric}
 			</div>
 			<div>
-				색상 : BLACK, WHITE, RED, GREEN
+				색상 : 
+	            <select name="p_color">
+					<option value="black">black</option>
+					<option value="black">white</option>
+					<option value="black">red</option>
+					<option value="black">green</option>
+				</select>
 			</div>
 			<div>
-				사이즈 : M, L, XL
+				사이즈 : 
+				 <select name="p_size">
+					<option value="M">M</option>
+					<option value="L">L</option>
+					<option value="XL">XL</option>
+				</select>
 			</div>
 			<div class="flex mt-4 space-x-2">
 				<button id="basketBtn" class="px-4 py-2 text-black text-white-500 hover:text-white-800">장바구니</button>

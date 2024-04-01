@@ -61,9 +61,9 @@
 
         <div class="bg-white shadow rounded-lg p-6 mb-6">
             <h2 class="text-xl font-semibold mb-4">주문 세부정보</h2>
-            <c:forEach var="order" items="${order }">
+            <c:forEach var="order" items="${order}">
             <div class="flex items-center mb-4">
-                <img src="https://source.unsplash.com/random/100x100?product" alt="Product Image" class="w-24 h-24 object-cover rounded mr-4">
+                <img src="resources/product_img/${order.p_picture}" style="width: 280px; height: 230px;">
                 <div>상품 번호 
                     <p class="font-semibold">${order.p_name }</p>
                     <p>${order.p_size }, ${order.p_color }</p>

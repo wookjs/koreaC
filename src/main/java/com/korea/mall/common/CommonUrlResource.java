@@ -1,12 +1,7 @@
 package com.korea.mall.common;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;

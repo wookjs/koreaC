@@ -1,6 +1,5 @@
 package com.korea.mall.controller;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,15 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.korea.mall.dao.LoginDAO;
 import com.korea.mall.dao.OrderDAO;
-import com.korea.mall.dao.UserDAO;
 import com.korea.mall.dto.BasketDTO;
 import com.korea.mall.dto.OrderDTO;
-import com.korea.mall.dto.SearchDTO;
 import com.korea.mall.dto.SearchreDTO;
 import com.korea.mall.dto.UserDTO;
 import com.korea.mall.service.OrderService;
@@ -35,8 +28,6 @@ import lombok.RequiredArgsConstructor;
 public class OrderController {
 	
 	private final  OrderService orderService;
-	
-	private final UserDAO user_dao;
 	
 	private final OrderDAO orderDAO;
 	
