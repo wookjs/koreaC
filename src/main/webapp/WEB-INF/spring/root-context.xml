@@ -12,6 +12,7 @@
 		<task:scheduler id="jobScheduler" pool-size="10"/>
 		<task:annotation-driven scheduler="jobScheduler"/>
 		
+		
 	<!-- javax mail bean -->
    <bean id="mailSender" class = "org.springframework.mail.javamail.JavaMailSenderImpl">
       <property name="host" value="smtp.gmail.com"></property>
